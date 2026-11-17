@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIMETRIA - Media Pembelajaran Grup Simetri</title>
+<style>
+:root{
+  --navy:#0f1b3d; --navy2:#1b2a5e; --violet:#6d4aff; --blue:#3b82f6; --cyan:#22d3ee;
+  --amber:#fbbf24; --green:#22c55e; --red:#ef4444; --pink:#ff6b9d;
+  --ink:#1e2547; --muted:#64708f; --card:#ffffff; --line:#e3e8f5;
+  --A:#ff6b4a; --B:#3b82f6; --C:#22c55e;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#070d22;font-family:"Trebuchet MS","Segoe UI",system-ui,Arial,sans-serif;color:var(--ink)}
+#viewport{position:fixed;inset:0}
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;transform-origin:center center;overflow:hidden;background:linear-gradient(135deg,#eef2ff 0%,#f6f0ff 50%,#e9f7ff 100%);border-radius:6px;box-shadow:0 0 60px rgba(0,0,0,.5)}
+
+/* dekorasi latar */
+.deco{position:absolute;pointer-events:none;opacity:.5}
+.deco.t1{left:-60px;bottom:-70px;width:260px;animation:spin 40s linear infinite}
+.deco.t2{right:-40px;top:40px;width:180px;animation:spin 55s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+/* top bar */
+#topbar{position:absolute;left:0;right:0;top:0;height:64px;display:none;align-items:center;gap:14px;padding:0 22px;background:linear-gradient(90deg,var(--navy),var(--navy2));color:#fff;z-index:20}
+#topbar.on{display:flex}
+#topbar .ttl{font-size:24px;font-weight:800;letter-spacing:.3px;flex:1}
+#topbar .who{font-size:15px;background:rgba(255,255,255,.14);padding:7px 16px;border-radius:99px}
+.ibtn{width:44px;height:44px;border-radius:12px;border:0;background:rgba(255,255,255,.15);color:#fff;font-size:22px;cursor:pointer}
+.ibtn:hover{background:rgba(255,255,255,.28)}
+
+/* screens */
+.screen{position:absolute;inset:0;display:none}
+.screen.on{display:block;animation:pop .35s ease}
+.screen.pad{padding:88px 40px 28px}
+
+.btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;border:0;border-radius:14px;padding:12px 24px;font-size:19px;font-weight:700;font-family:inherit;cursor:pointer;box-shadow:0 6px 16px rgba(80,70,220,.3);transition:transform .12s}
+.btn:hover{transform:translateY(-2px)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.alt{background:#fff;color:var(--violet);box-shadow:none;border:2px solid var(--violet)}
+.btn.amber{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#4a3200;box-shadow:0 6px 16px rgba(245,158,11,.3)}
+.btn.sm{padding:8px 16px;font-size:16px;border-radius:10px}
+.card{background:var(--card);border-radius:20px;box-shadow:0 8px 28px rgba(30,40,100,.1);padding:24px}
+h2.h{font-size:34px;margin-bottom:14px;color:var(--navy2)}
+.chip{display:inline-block;min-width:30px;text-align:center;padding:1px 9px;border-radius:99px;color:#fff;font-weight:800;font-size:.95em}
+.chip.A{background:var(--A)}.chip.B{background:var(--B)}.chip.C{background:var(--C)}
+
+/* SAMPUL */
+#s-cover{background:radial-gradient(circle at 20% 20%,#3a2fd0 0%,#17206b 45%,#0a1030 100%);color:#fff}
+#s-cover .l{position:absolute;left:70px;top:120px;width:640px}
+#s-cover .tag{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);padding:6px 18px;border-radius:99px;font-size:16px;margin-bottom:22px}
+#s-cover h1{font-size:104px;line-height:1;font-weight:900;letter-spacing:3px;background:linear-gradient(90deg,#fff,#a5f3fc);-webkit-background-clip:text;background-clip:text;color:transparent}
+#s-cover .sub{font-size:28px;margin-top:16px;color:#dbe6ff;line-height:1.35}
+#s-cover .meta{margin-top:26px;font-size:17px;color:#b9c8f5}
+#s-cover .big{position:absolute;right:420px;top:70px;width:300px;opacity:.9;animation:float 6s ease-in-out infinite}
+#s-cover .big svg{animation:spin 24s linear infinite}
+#s-cover .form{position:absolute;right:56px;top:150px;width:340px;background:rgba(255,255,255,.96);color:var(--ink);border-radius:22px;padding:26px;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+#s-cover .form h3{font-size:24px;margin-bottom:6px;color:var(--navy2)}
+#s-cover label{display:block;font-weight:700;font-size:15px;margin:12px 0 5px}
+#s-cover input{width:100%;padding:11px 14px;border:2px solid var(--line);border-radius:12px;font-size:17px;font-family:inherit}
+#s-cover input:focus{outline:none;border-color:var(--violet)}
+#s-cover .err{color:var(--red);font-size:14px;min-height:20px;margin-top:8px}
+.form.shake{animation:shake .35s}
+
+/* MENU */
+#s-menu h2{font-size:38px;color:var(--navy2)}
+#s-menu .hi{font-size:20px;color:var(--muted);margin:4px 0 22px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.tile{background:#fff;border:0;border-radius:22px;padding:22px 18px;cursor:pointer;font-family:inherit;text-align:center;box-shadow:0 8px 24px rgba(30,40,100,.1);transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
+.tile:hover{transform:translateY(-6px);box-shadow:0 16px 34px rgba(60,60,200,.2)}
+.tile .ico{width:84px;height:84px;margin:0 auto 10px;border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:44px;color:#fff}
+.tile b{display:block;font-size:24px;color:var(--navy2)}
+.tile span.d{display:block;font-size:16px;color:var(--muted);margin-top:4px}
+.c1{background:linear-gradient(135deg,#8b5cf6,#6d4aff)}.c2{background:linear-gradient(135deg,#f59e0b,#fbbf24)}
+.c3{background:linear-gradient(135deg,#06b6d4,#3b82f6)}.c4{background:linear-gradient(135deg,#10b981,#22c55e)}
+.c5{background:linear-gradient(135deg,#ec4899,#ff6b9d)}.c6{background:linear-gradient(135deg,#64748b,#94a3b8)}
+
+/* PETUNJUK & TUJUAN */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.row-ic{display:flex;gap:16px;align-items:center;background:#fff;border-radius:16px;padding:14px 18px;box-shadow:0 4px 14px rgba(30,40,100,.07);font-size:19px}
+.row-ic .b{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff;flex:none}
+.goal{display:flex;gap:16px;align-items:flex-start;background:#fff;border-radius:18px;padding:16px 20px;box-shadow:0 4px 14px rgba(30,40,100,.07);font-size:20px;line-height:1.4}
+.goal .n{flex:none;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--blue));color:#fff;font-weight:800;font-size:22px;display:flex;align-items:center;justify-content:center}
+.note{background:#eef4ff;border-left:6px solid var(--blue);border-radius:12px;padding:12px 18px;font-size:18px;margin-top:14px}
+
+/* MATERI */
+#mBody{height:488px}
+.mpage{display:flex;gap:30px;height:100%;animation:pop .3s ease}
+.mtxt{flex:0 0 440px;font-size:21px;line-height:1.5}
+.mtxt h3{font-size:34px;color:var(--navy2);margin-bottom:10px;line-height:1.15}
+.mtxt p{margin-bottom:10px}
+.mvis{flex:1;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;align-content:center}
+.box{border-radius:14px;padding:12px 18px;font-size:19px;margin-top:10px}
+.box.b{background:#eef4ff;border-left:6px solid var(--blue)}
+.box.g{background:#e9fbf0;border-left:6px solid var(--green)}
+.box.y{background:#fff7e0;border-left:6px solid var(--amber)}
+.fig{background:#fff;border-radius:18px;padding:10px 10px 12px;text-align:center;box-shadow:0 6px 18px rgba(30,40,100,.09);font-size:18px;font-weight:700;color:var(--navy2)}
+.fig small{display:block;font-weight:400;color:var(--muted);font-size:15px}
+.arrow{font-size:20px;font-weight:800;color:var(--violet);text-align:center;line-height:1.1}
+.arrow i{display:block;font-style:normal;font-size:34px}
+.emo{font-size:70px;line-height:1;margin-bottom:6px}
+.eq{font-size:30px;font-weight:800;color:var(--navy2);width:100%;text-align:center}
+.pager{position:absolute;left:40px;right:40px;bottom:24px;display:flex;align-items:center;justify-content:space-between}
+.dots{display:flex;gap:9px}
+.dots i{width:12px;height:12px;border-radius:50%;background:#c9d2ee;cursor:pointer}
+.dots i.on{background:var(--violet);transform:scale(1.35)}
+.prop{width:100%}
+.props{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%}
+.props .fig{padding:16px;text-align:left;font-weight:400;font-size:19px}
+.props .fig b{display:block;font-size:22px;margin:4px 0}
+
+/* EKSPLORASI */
+#s-eksplor .wrap{display:flex;gap:26px;height:100%}
+#s-eksplor .left{flex:0 0 560px}
+#simBox{height:100%;background:#fff;border-radius:22px;box-shadow:0 8px 28px rgba(30,40,100,.1);display:flex;align-items:center;justify-content:center;position:relative}
+#simBox .legend{position:absolute;left:16px;bottom:12px;font-size:14px;color:var(--muted)}
+#s-eksplor .right{flex:1;display:flex;flex-direction:column;gap:12px}
+.mvgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.mvgrid .btn{justify-content:center;padding:12px 6px;font-size:17px}
+.info{background:#fff;border-radius:16px;padding:14px 18px;box-shadow:0 4px 14px rgba(30,40,100,.07);font-size:18px}
+.info .lab{font-size:14px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+.info .val{font-size:22px;font-weight:800;color:var(--navy2);min-height:30px}
+.mission{background:linear-gradient(135deg,#fff7e0,#ffeec2);border:2px dashed #f59e0b}
+.mission.ok{background:linear-gradient(135deg,#e6fbee,#cdf6dc);border-color:var(--green)}
+
+/* MODAL */
+#modal{position:absolute;inset:0;background:rgba(10,16,48,.7);display:none;align-items:center;justify-content:center;z-index:50}
+#modal.on{display:flex}
+#modal .card{width:860px;max-height:640px;overflow:auto;padding:26px 30px}
+#cay{border-collapse:separate;border-spacing:5px;width:100%;text-align:center;font-size:23px}
+#cay th{background:#eef2ff;border-radius:10px;padding:9px;color:var(--navy2)}
+#cay td{border-radius:10px;padding:11px;background:#f4f6fd;font-weight:700;cursor:pointer;user-select:none;color:transparent}
+#cay td::before{content:"?";color:#9aa6c8}
+#cay td.show{color:var(--navy2);background:#e6fbee}
+#cay td.show::before{content:""}
+
+/* GEOGEBRA */
+#s-gg .wrap{display:flex;gap:22px;height:100%}
+#ggFrame{width:100%;height:100%;border:0;border-radius:18px;background:#fff;box-shadow:0 8px 28px rgba(30,40,100,.12)}
+#s-gg .left{flex:0 0 800px}
+#s-gg .right{flex:1;display:flex;flex-direction:column;gap:10px;min-width:0}
+#s-gg input{width:100%;padding:11px 14px;border:2px solid var(--line);border-radius:12px;font-size:16px;font-family:inherit}
+#s-gg input:focus{outline:none;border-color:var(--violet)}
+pre.cmd{background:#12204d;color:#dbe7ff;padding:12px 16px;border-radius:14px;font-size:15px;line-height:1.5;overflow:auto;flex:1}
+.small{font-size:15px;color:var(--muted)}
+
+/* KUIS */
+#qHead{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+#qHead .pb{flex:1;height:14px;background:#d9e0f5;border-radius:99px;overflow:hidden}
+#qHead .pb div{height:100%;width:0;background:linear-gradient(90deg,var(--violet),var(--cyan));transition:width .35s}
+#qHead b{font-size:20px;color:var(--navy2)}
+#qQ{font-size:29px;font-weight:800;color:var(--navy2);line-height:1.3;margin-bottom:16px;min-height:96px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.opt{display:flex;align-items:center;gap:14px;text-align:left;background:#fff;border:3px solid var(--line);border-radius:16px;padding:16px 18px;font-size:22px;font-family:inherit;color:var(--ink);cursor:pointer;transition:transform .1s}
+.opt:hover:not(:disabled){border-color:var(--violet);transform:translateY(-2px)}
+.opt .k{flex:none;width:40px;height:40px;border-radius:50%;background:#eef2ff;color:var(--violet);font-weight:800;display:flex;align-items:center;justify-content:center}
+.opt.right{background:#e6fbee;border-color:var(--green)}.opt.right .k{background:var(--green);color:#fff}
+.opt.wrong{background:#fdecec;border-color:var(--red)}.opt.wrong .k{background:var(--red);color:#fff}
+#qFb{margin-top:14px;font-size:20px;min-height:56px;line-height:1.4}
+.ring{width:210px;height:210px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto}
+.ring div{width:156px;height:156px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900;font-size:54px;color:var(--navy2)}
+.ring small{font-size:17px;font-weight:600;color:var(--muted)}
+
+
+/* RINCIAN JAWABAN */
+.strip{display:flex;gap:8px;margin:0 0 16px;flex-wrap:wrap}
+.strip i{font-style:normal;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff;cursor:pointer}
+.strip i.ok{background:var(--green)}.strip i.no{background:var(--red)}
+.stat{text-align:center;padding:6px 16px;border-radius:12px;font-weight:800;font-size:15px;line-height:1.2}
+.stat b{display:block;font-size:26px}
+.stat.g{background:#e6fbee;color:#15803d}.stat.r{background:#fdecec;color:#b91c1c}.stat.v{background:#eef2ff;color:var(--violet)}
+.rv{max-height:392px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding-right:6px}
+.rvr{display:flex;gap:14px;border-radius:14px;padding:10px 14px;border:2px solid var(--line);background:#fff}
+.rvr.ok{background:#f1fcf5;border-color:#a7e8bf}.rvr.no{background:#fff5f5;border-color:#f6b8b8}
+.rvr .n{flex:none;width:36px;height:36px;border-radius:50%;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+.rvr.ok .n{background:var(--green)}.rvr.no .n{background:var(--red)}
+.rvr .q{font-size:17px;font-weight:700;color:var(--navy2);line-height:1.3}
+.rvr .a{font-size:16px;margin-top:3px;line-height:1.35}
+.rvr .w{font-size:15px;color:var(--muted);margin-top:3px;line-height:1.35}
+
+/* PANEL GURU */
+.gt{border-collapse:separate;border-spacing:0;width:100%;font-size:15px}
+.gt th,.gt td{padding:6px 8px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap}
+.gt th{background:#eef2ff;color:var(--navy2);position:sticky;top:0;z-index:2}
+.gt tr.sub th{top:33px;background:#f7f8ff;font-size:13px;color:var(--muted)}
+.gt td.l,.gt th.l{text-align:left}
+.gt td.ok{background:#e6fbee;color:#15803d;font-weight:800}.gt td.no{background:#fdecec;color:#b91c1c;font-weight:800}
+.gw{max-height:350px;overflow:auto;border-radius:12px;border:2px solid var(--line)}
+.gx{border:0;background:none;color:var(--red);cursor:pointer;font-size:15px}
+textarea.code{width:100%;height:110px;border:2px solid var(--line);border-radius:12px;padding:10px;font-size:13px;font-family:monospace;resize:none}
+#gArea input[type=password]{padding:11px 14px;border:2px solid var(--line);border-radius:12px;font-size:20px;font-family:inherit;width:220px}
+.bar{height:14px;background:#e3e8f5;border-radius:99px;overflow:hidden}
+.bar div{height:100%;background:linear-gradient(90deg,var(--violet),var(--cyan));border-radius:99px}
+.bar.g div{background:linear-gradient(90deg,#16a34a,#4ade80)}.bar.r div{background:linear-gradient(90deg,#dc2626,#f87171)}.bar.y div{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.ar{display:grid;grid-template-columns:34px 1fr 46px 62px 120px;gap:8px;align-items:center;font-size:15px;padding:3px 0}
+.rk{display:grid;grid-template-columns:70px 1fr 38px;gap:8px;align-items:center;font-size:15px;padding:2px 0}
+.rk .b{text-align:right;font-weight:800;color:var(--navy2)}
+#rotate{position:fixed;inset:0;z-index:99;background:#0a1030;color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px;font-size:19px;line-height:1.5}
+#rotate .ph{font-size:72px;display:inline-block;animation:turn 2.4s ease-in-out infinite}
+@keyframes turn{0%,20%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
+#rotate button{background:#fff;color:#1b2a5e;border:0;border-radius:12px;padding:10px 20px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer}
+a.btn{text-decoration:none}
+#btnMusCover{position:absolute;right:24px;top:24px;z-index:5}
+.gn:hover{color:var(--violet)}
+.badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:13px;font-weight:800}
+.badge.t{background:#e6fbee;color:#15803d}.badge.r{background:#fdecec;color:#b91c1c}
+</style>
+</head>
+<body>
+<div id="viewport">
+<div id="stage">
+
+  <svg class="deco t1" viewBox="-100 -100 200 200"><polygon points="0,-80 69.3,40 -69.3,40" fill="none" stroke="#a78bfa" stroke-width="4"/></svg>
+  <svg class="deco t2" viewBox="-100 -100 200 200"><polygon points="0,-80 69.3,40 -69.3,40" fill="none" stroke="#67e8f9" stroke-width="4"/></svg>
+
+  <div id="topbar">
+    <button class="ibtn" id="btnHome" title="Menu">🏠</button>
+    <div class="ttl" id="ttl">Menu</div>
+    <div class="who" id="who"></div>
+    <button class="ibtn" id="btnMus" title="Matikan musik">🔊</button>
+    <button class="ibtn" id="btnFs" title="Layar penuh">⛶</button>
+  </div>
+
+  <!-- SAMPUL -->
+  <div class="screen on" id="s-cover">
+    <svg class="deco t1" viewBox="-100 -100 200 200" style="opacity:.25"><polygon points="0,-80 69.3,40 -69.3,40" fill="none" stroke="#fff" stroke-width="3"/></svg>
+    <div class="l">
+      <div class="tag">Media Pembelajaran Interaktif</div>
+      <h1>SIMETRIA</h1>
+      <div class="sub">Jelajah Grup Simetri lewat Segitiga Sama Sisi</div>
+      <div class="meta">Matematika SMP Kelas 8 &bull; Pengayaan Aljabar Abstrak</div>
+    </div>
+    <button class="ibtn" id="btnMusCover" title="Matikan musik">🔊</button>
+    <div class="big" id="coverTri"></div>
+    <div class="form" id="form">
+      <h3>Ayo mulai!</h3>
+      <div class="small" style="font-size:15px">Isi identitasmu dulu ya.</div>
+      <label for="inNama">Nama siswa</label>
+      <input id="inNama" type="text" placeholder="Contoh: Siti Aisyah" autocomplete="off">
+      <label for="inSek">Nama sekolah</label>
+      <input id="inSek" type="text" placeholder="Contoh: SMPN 1 Surabaya" autocomplete="off">
+      <div class="err" id="formErr"></div>
+      <button class="btn" id="btnStart" style="width:100%;justify-content:center;margin-top:4px">Mulai Belajar ▶</button>
+    </div>
+    <button class="btn alt sm" id="btnGuruCover" style="position:absolute;left:70px;bottom:36px;background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.4)">👩‍🏫 Masuk Guru</button>
+  </div>
+
+  <!-- MENU -->
+  <div class="screen pad" id="s-menu">
+    <h2>Menu Media</h2>
+    <div class="hi" id="hi">Pilih menu untuk mulai.</div>
+    <div class="tiles">
+      <button class="tile" data-go="petunjuk"><div class="ico c6">🧭</div><b>Petunjuk</b><span class="d">Cara memakai media</span></button>
+      <button class="tile" data-go="tujuan"><div class="ico c1">🎯</div><b>Tujuan Pembelajaran</b><span class="d">Apa yang akan kamu capai</span></button>
+      <button class="tile" data-go="materi"><div class="ico c2">📖</div><b>Materi</b><span class="d">8 halaman bergambar</span></button>
+      <button class="tile" data-go="eksplor"><div class="ico c3">🔮</div><b>Eksplorasi</b><span class="d">Putar &amp; cerminkan segitiga</span></button>
+      <button class="tile" data-go="gg"><div class="ico c4">📐</div><b>GeoGebra</b><span class="d">Applet interaktif</span></button>
+      <button class="tile" data-go="kuis"><div class="ico c5">✍️</div><b>Kuis</b><span class="d">10 soal + skor</span></button>
+    </div>
+  </div>
+
+  <!-- PETUNJUK -->
+  <div class="screen pad" id="s-petunjuk">
+    <div class="grid2">
+      <div class="row-ic"><div class="b c6">🏠</div><div><b>Tombol Menu</b><br>Kembali ke menu utama kapan saja.</div></div>
+      <div class="row-ic"><div class="b c1">🎯</div><div><b>Tujuan</b><br>Baca dulu tujuan belajarmu.</div></div>
+      <div class="row-ic"><div class="b c2">📖</div><div><b>Materi</b><br>Tekan ◀ ▶ untuk pindah halaman.</div></div>
+      <div class="row-ic"><div class="b c3">🔮</div><div><b>Eksplorasi</b><br>Tekan tombol gerakan, selesaikan misi.</div></div>
+      <div class="row-ic"><div class="b c4">📐</div><div><b>GeoGebra</b><br>Coba applet dan geser slidernya.</div></div>
+      <div class="row-ic"><div class="b c5">✍️</div><div><b>Kuis</b><br>Jawab 10 soal, lihat skormu.</div></div>
+      <div class="row-ic"><div class="b c6">⛶</div><div><b>Layar Penuh</b><br>Tampilan lebih besar dan jelas.</div></div>
+      <div class="row-ic"><div class="b c2">💡</div><div><b>Saran</b><br>Pakai layar landscape (mendatar).</div></div>
+    </div>
+    <div class="note">Urutan belajar yang disarankan: <b>Tujuan → Materi → Eksplorasi → GeoGebra → Kuis</b>.</div>
+  </div>
+
+  <!-- TUJUAN -->
+  <div class="screen pad" id="s-tujuan">
+    <h2 class="h" style="font-size:30px;margin-bottom:12px">Setelah belajar, kamu mampu:</h2>
+    <div class="grid2" style="gap:14px">
+      <div class="goal"><div class="n">1</div><div>Menyebutkan simetri lipat dan simetri putar pada segitiga sama sisi.</div></div>
+      <div class="goal"><div class="n">2</div><div>Menentukan semua gerakan (putar dan cermin) yang membuat segitiga menempati bingkainya lagi.</div></div>
+      <div class="goal"><div class="n">3</div><div>Menggabungkan dua gerakan simetri dan menentukan hasilnya.</div></div>
+      <div class="goal"><div class="n">4</div><div>Menemukan sifat tertutup, identitas, dan invers dari gerakan-gerakan simetri.</div></div>
+      <div class="goal" style="grid-column:1/3"><div class="n">5</div><div>Menjelaskan dengan bahasa sendiri bahwa kumpulan gerakan simetri membentuk sebuah <b>grup</b>.</div></div>
+    </div>
+    <div class="note">Bagian istilah "grup" adalah materi <b>pengayaan</b>. Fokus utamamu: mengamati, mencoba, dan menemukan pola.</div>
+  </div>
+
+  <!-- MATERI -->
+  <div class="screen pad" id="s-materi">
+    <div id="mBody"></div>
+    <div class="pager">
+      <button class="btn alt sm" id="mPrev">◀ Sebelumnya</button>
+      <div class="dots" id="mDots"></div>
+      <button class="btn sm" id="mNext">Berikutnya ▶</button>
+    </div>
+  </div>
+
+  <!-- EKSPLORASI -->
+  <div class="screen pad" id="s-eksplor">
+    <div class="wrap">
+      <div class="left"><div id="simBox"></div></div>
+      <div class="right">
+        <div class="mvgrid">
+          <button class="btn" data-mv="r1">⟳ r₁ (120°)</button>
+          <button class="btn" data-mv="r2">⟳ r₂ (240°)</button>
+          <button class="btn amber" id="btnReset">↺ Ulang</button>
+          <button class="btn alt" data-mv="m1">⇋ m₁ sumbu 1</button>
+          <button class="btn alt" data-mv="m2">⇋ m₂ sumbu 2</button>
+          <button class="btn alt" data-mv="m3">⇋ m₃ sumbu 3</button>
+        </div>
+        <div class="info"><div class="lab">Gerakan yang sudah dilakukan</div><div class="val" id="hist" style="font-size:20px">(belum ada)</div></div>
+        <div class="info"><div class="lab">Gabungan semuanya = satu gerakan</div><div class="val" id="eq">e (diam)</div>
+          <div class="lab" style="margin-top:6px">Susunan (atas · kiri bawah · kanan bawah)</div><div class="val" id="arrNow"></div></div>
+        <div class="info mission" id="mission"></div>
+        <div style="display:flex;gap:10px">
+          <button class="btn alt sm" id="btnNewMission">🎲 Misi baru</button>
+          <button class="btn sm" id="btnTable">📊 Tabel Gabungan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GEOGEBRA -->
+  <div class="screen pad" id="s-gg">
+    <div class="wrap">
+      <div class="left"><iframe id="ggFrame" title="Applet GeoGebra" allowfullscreen></iframe></div>
+      <div class="right">
+        <div class="info">
+          <div class="lab">Tempel tautan / ID applet GeoGebra</div>
+          <input id="ggLink" type="text" placeholder="https://www.geogebra.org/m/xxxxxxxx" style="margin-top:6px">
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn sm" id="ggLoad">Tampilkan</button>
+            <button class="btn alt sm" id="ggClassic">GeoGebra kosong</button>
+          </div>
+          <div class="small" id="ggFb" style="margin-top:6px;min-height:20px"></div>
+        </div>
+        <div class="lab" style="font-size:14px;color:var(--muted);font-weight:700">PERINTAH DI GEOGEBRA CLASSIC</div>
+<pre class="cmd">A=(0,2)
+B=(-1.73,-1)
+C=(1.73,-1)
+segitiga=Polygon(A,B,C)
+O=(0,0)
+sudut=Slider(0°,360°,120°)
+putar=Rotate(segitiga,sudut,O)
+sumbu=Line(O,A)
+cermin=Reflect(segitiga,sumbu)
+// ganti sumbu: Line(O,B) / Line(O,C)</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- KUIS -->
+  <div class="screen pad" id="s-kuis">
+    <div id="qHead"><b id="qNo">Soal 1/10</b><div class="pb"><div id="qBar"></div></div><b id="qScore">Skor 0</b></div>
+    <div id="qArea"></div>
+  </div>
+
+  <!-- PANEL GURU -->
+  <div class="screen pad" id="s-guru"><div id="gArea"></div></div>
+
+  <!-- MODAL TABEL -->
+  <div id="modal">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <h2 class="h" style="margin:0;font-size:28px">Tabel Gabungan Gerakan</h2>
+        <button class="btn sm" id="btnCloseTable">✕ Tutup</button>
+      </div>
+      <div class="small" style="margin-bottom:8px">Baris = gerakan <b>pertama</b>, kolom = gerakan <b>kedua</b>. Tebak dulu, lalu klik kotak "?" untuk memeriksa.</div>
+      <table id="cay"></table>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button class="btn alt sm" id="btnShowAll">Tampilkan semua</button>
+        <button class="btn alt sm" id="btnHideAll">Sembunyikan lagi</button>
+      </div>
+      <div class="note" style="font-size:16px">Amati: adakah hasil di luar 6 gerakan? Adakah <b>e</b> di tiap baris dan kolom? Apakah tabel simetris terhadap diagonal?</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<div id="rotate"><div class="ph">📱</div><div><b>Putar HP ke mode landscape</b><br>Media ini berformat 16:9 supaya tulisannya terbaca jelas.</div><button id="rotSkip">Tetap lanjutkan</button></div>
+
+<script>
+/* ============ PENGATURAN GURU ============ */
+var KKM = 70;          // batas ketuntasan: nilai minimal dianggap tuntas
+var GURU_PIN = "1234";   // PIN panel guru (ganti sesuai keinginan)
+var GURU_WA = "";       // nomor WhatsApp guru format 628xxxxxxxxxx (kosongkan = siswa pilih sendiri kontaknya)
+var FORM_LINK = "";     // tautan Google Form "pre-filled" (lihat petunjuk), hasil otomatis masuk ke Respons Form
+var SHEET_URL = "";     // opsional: URL Web App Google Apps Script agar hasil siswa otomatis masuk Google Sheets
+var GG_ID = "";  // isi dengan ID applet GeoGebra, contoh "abcd1234"
+
+/* ============ UTIL ============ */
+function $(id){return document.getElementById(id);}
+function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){return null;}}
+function fit(){
+  var s=Math.min(window.innerWidth/1280, window.innerHeight/720);
+  $("stage").style.transform="translate(-50%,-50%) scale("+s+")";
+}
+var rotSkip=false;
+function checkRot(){var p=window.innerHeight>window.innerWidth && window.innerWidth<760; $("rotate").style.display=(p&&!rotSkip)?"flex":"none";}
+window.addEventListener("resize",function(){fit();checkRot();}); fit(); checkRot();
+$("rotSkip").onclick=function(){rotSkip=true;checkRot();};
+
+/* ============ MODEL GRUP ============ */
+var OPS={
+  e:function(a){return [a[0],a[1],a[2]];},
+  r1:function(a){return [a[1],a[2],a[0]];},
+  r2:function(a){return [a[2],a[0],a[1]];},
+  m1:function(a){return [a[0],a[2],a[1]];},
+  m2:function(a){return [a[2],a[1],a[0]];},
+  m3:function(a){return [a[1],a[0],a[2]];}
+};
+var NAMES={e:"e (diam)",r1:"r₁ (putar 120°)",r2:"r₂ (putar 240°)",m1:"m₁ (cermin sumbu 1)",m2:"m₂ (cermin sumbu 2)",m3:"m₃ (cermin sumbu 3)"};
+var SHORT={e:"e",r1:"r₁",r2:"r₂",m1:"m₁",m2:"m₂",m3:"m₃"};
+var ORDER=["e","r1","r2","m1","m2","m3"];
+var START=["A","B","C"];
+function keyOf(a){return a.join("");}
+var KEY2EL={};
+ORDER.forEach(function(k){KEY2EL[keyOf(OPS[k](START))]=k;});
+function compose(a,b){return KEY2EL[keyOf(OPS[b](OPS[a](START)))];}
+
+/* ============ GAMBAR SEGITIGA ============ */
+var POS=[[0,-80],[-69.3,40],[69.3,40]];
+var COL={A:"#ff6b4a",B:"#3b82f6",C:"#22c55e"};
+var AXANG={m1:-90,m2:150,m3:30};
+function ptsStr(){return POS.map(function(p){return p.join(",");}).join(" ");}
+function axisLine(k,L,color,w){
+  var a=AXANG[k]*Math.PI/180;
+  return '<line x1="'+(-L*Math.cos(a))+'" y1="'+(-L*Math.sin(a))+'" x2="'+(L*Math.cos(a))+'" y2="'+(L*Math.sin(a))+'" stroke="'+color+'" stroke-width="'+w+'" stroke-dasharray="6 5" stroke-linecap="round"/>';
+}
+function vertices(arr,r,fs){
+  var s="";
+  arr.forEach(function(l,i){
+    s+='<circle cx="'+POS[i][0]+'" cy="'+POS[i][1]+'" r="'+r+'" fill="'+COL[l]+'" stroke="#fff" stroke-width="2"/>';
+    s+='<text x="'+POS[i][0]+'" y="'+(POS[i][1]+fs*0.36)+'" text-anchor="middle" font-size="'+fs+'" font-weight="800" fill="#fff" font-family="Trebuchet MS,Arial">'+l+'</text>';
+  });
+  return s;
+}
+function triSVG(arr,o){
+  o=o||{};
+  var s='<svg viewBox="-105 -100 210 190" width="'+(o.w||190)+'" xmlns="http://www.w3.org/2000/svg">';
+  s+='<polygon points="'+ptsStr()+'" fill="none" stroke="#b7c2e2" stroke-width="2" stroke-dasharray="5 4"/>';
+  if(o.axis) s+=axisLine(o.axis,96,"#f59e0b",3);
+  s+='<polygon points="'+ptsStr()+'" fill="rgba(109,74,255,.13)" stroke="#1e2547" stroke-width="4" stroke-linejoin="round"/>';
+  s+=vertices(arr,15,17);
+  s+='</svg>';
+  return s;
+}
+
+/* sampul */
+$("coverTri").innerHTML='<svg viewBox="-105 -100 210 190" width="300"><polygon points="'+ptsStr()+'" fill="rgba(255,255,255,.12)" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>'+vertices(["A","B","C"],16,18)+'</svg>';
+
+/* ============ MUSIK & EFEK SUARA (dibuat langsung oleh browser, tanpa file luar) ============ */
+var Aud={ctx:null,mus:null,sfxg:null,on:store("sim_musik")!=="off",tm:null,step:0,next:0};
+var CH=[[48,52,55],[45,48,52],[41,45,48],[43,47,50]], PENT=[72,74,76,79,81,84], ARP=[0,1,2,1,0,1,2,1], EIGHTH=60/96/2;
+function mid(m){return 440*Math.pow(2,(m-69)/12);}
+function tone(f,t,d,type,v,dest){
+  var c=Aud.ctx,o=c.createOscillator(),g=c.createGain();
+  o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(v,t+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+  o.connect(g);g.connect(dest);o.start(t);o.stop(t+d+0.05);
+}
+function playStep(s,t){
+  var bar=Math.floor(s/8)%4,i=s%8,ch=CH[bar],d=Aud.mus;
+  tone(mid(ch[ARP[i]]+12),t,0.5,"triangle",0.22,d);
+  if(i===0||i===4)tone(mid(ch[0]-12),t,0.6,"sine",0.35,d);
+  if(i===0)ch.forEach(function(n){tone(mid(n),t,EIGHTH*8,"sine",0.07,d);});
+  if((i===0||i===3||i===6)&&Math.random()<0.7)tone(mid(PENT[Math.floor(Math.random()*PENT.length)]),t,0.45,"sine",0.14,d);
+}
+function audTick(){var c=Aud.ctx;if(!c)return;while(Aud.next<c.currentTime+0.35){playStep(Aud.step,Aud.next);Aud.next+=EIGHTH;Aud.step++;}}
+function audInit(){
+  if(Aud.ctx)return;
+  var C=window.AudioContext||window.webkitAudioContext;if(!C)return;
+  Aud.ctx=new C();
+  Aud.mus=Aud.ctx.createGain();Aud.mus.gain.value=0.45;Aud.mus.connect(Aud.ctx.destination);
+  Aud.sfxg=Aud.ctx.createGain();Aud.sfxg.gain.value=0.8;Aud.sfxg.connect(Aud.ctx.destination);
+}
+function audPlay(){
+  if(!Aud.on)return; audInit(); if(!Aud.ctx)return;
+  if(Aud.ctx.state==="suspended")Aud.ctx.resume();
+  if(!Aud.tm){Aud.next=Aud.ctx.currentTime+0.1;Aud.tm=setInterval(audTick,100);}
+}
+function audStop(){if(Aud.tm){clearInterval(Aud.tm);Aud.tm=null;} if(Aud.ctx&&Aud.ctx.state==="running")Aud.ctx.suspend();}
+function sfx(k){
+  if(!Aud.on)return; audInit(); var c=Aud.ctx; if(!c)return; if(c.state==="suspended")c.resume();
+  var t=c.currentTime+0.02,d=Aud.sfxg;
+  if(k==="ok"){tone(mid(79),t,0.18,"square",0.1,d);tone(mid(84),t+0.12,0.35,"square",0.1,d);}
+  else if(k==="no"){tone(mid(55),t,0.25,"sawtooth",0.1,d);tone(mid(50),t+0.18,0.4,"sawtooth",0.1,d);}
+  else if(k==="win"){[72,76,79,84,88].forEach(function(n,i){tone(mid(n),t+i*0.11,0.45,"triangle",0.25,d);});}
+  else if(k==="end"){[67,64,60].forEach(function(n,i){tone(mid(n),t+i*0.14,0.4,"triangle",0.22,d);});}
+  else if(k==="tap"){tone(mid(88),t,0.06,"sine",0.1,d);}
+}
+function audUI(){var e=Aud.on?"🔊":"🔇";["btnMus","btnMusCover"].forEach(function(id){var b=$(id);if(b){b.textContent=e;b.title=Aud.on?"Matikan musik":"Nyalakan musik";}});}
+function audToggle(){Aud.on=!Aud.on;store("sim_musik",Aud.on?"on":"off");audUI();if(Aud.on)audPlay();else audStop();}
+$("btnMus").onclick=audToggle; $("btnMusCover").onclick=audToggle; audUI();
+document.addEventListener("pointerdown",function(){audPlay();});   // browser baru mengizinkan suara setelah ada sentuhan/klik
+document.addEventListener("click",function(e){if(e.target.closest(".btn,.tile,.ibtn"))sfx("tap");});
+document.addEventListener("visibilitychange",function(){if(document.hidden)audStop();else if(Aud.on&&Aud.ctx)audPlay();});
+
+/* ============ NAVIGASI ============ */
+var TITLES={menu:"Menu Media",petunjuk:"Petunjuk Penggunaan",tujuan:"Tujuan Pembelajaran",materi:"Materi",eksplor:"Eksplorasi Segitiga Sama Sisi",gg:"GeoGebra",kuis:"Kuis",guru:"Panel Guru"};
+var ggLoaded=false;
+function go(id){
+  document.querySelectorAll(".screen").forEach(function(s){s.classList.toggle("on",s.id==="s-"+id);});
+  $("topbar").classList.toggle("on", id!=="cover");
+  $("ttl").textContent=TITLES[id]||"";
+  if(id==="gg" && !ggLoaded){ggLoaded=true; $("ggFrame").src = GG_ID ? ggUrl(GG_ID) : "https://www.geogebra.org/classic?embed";}
+  if(id==="kuis" && qi===0 && !qStarted){renderQ();}
+}
+document.addEventListener("click",function(e){
+  var t=e.target.closest("[data-go]"); if(t) go(t.dataset.go);
+});
+$("btnHome").onclick=function(){go("menu");};
+$("btnFs").onclick=function(){
+  try{
+    if(!document.fullscreenElement){var p=document.documentElement.requestFullscreen(); if(p&&p.catch)p.catch(function(){});}
+    else document.exitFullscreen();
+  }catch(e){}
+};
+
+/* ============ IDENTITAS ============ */
+function applyWho(){
+  var n=store("sim_nama")||"", s=store("sim_sekolah")||"";
+  $("who").textContent = n ? (n+(s?" • "+s:"")) : "";
+  $("hi").textContent = n ? ("Halo, "+n+"! Pilih menu untuk mulai belajar.") : "Pilih menu untuk mulai.";
+  if(n) $("inNama").value=n; if(s) $("inSek").value=s;
+}
+$("btnStart").onclick=function(){
+  var n=$("inNama").value.trim(), s=$("inSek").value.trim();
+  if(!n||!s){
+    $("formErr").textContent="Nama dan sekolah harus diisi dulu ya.";
+    var f=$("form"); f.classList.remove("shake"); void f.offsetWidth; f.classList.add("shake");
+    return;
+  }
+  store("sim_nama",n); store("sim_sekolah",s); applyWho(); $("formErr").textContent=""; go("menu");
+};
+applyWho();
+
+/* ============ MATERI ============ */
+var MP=[
+function(){return '<div class="mpage"><div class="mtxt"><h3>Simetri ada di sekitar kita</h3><p>Perhatikan benda-benda di samping. Mana yang bisa <b>dilipat</b> dan menutupi dirinya? Mana yang bisa <b>diputar</b> dan tampak sama?</p><div class="box y"><b>Pertanyaan pemantik:</b> segitiga sama sisi punya simetri apa saja?</div></div><div class="mvis">'
+ +'<div class="fig"><div class="emo">🦋</div>Kupu-kupu<small>simetri lipat</small></div>'
+ +'<div class="fig"><div class="emo">🌸</div>Bunga<small>simetri putar</small></div>'
+ +'<div class="fig"><div class="emo">⭐</div>Bintang<small>lipat dan putar</small></div>'
+ +'<div class="fig"><div class="emo">🔺</div>Segitiga sama sisi<small>kita selidiki!</small></div></div></div>';},
+function(){return '<div class="mpage"><div class="mtxt"><h3>Simetri lipat</h3><p>Bangun punya <b>simetri lipat</b> jika bisa dilipat dan kedua bagiannya saling menutupi tepat. Garis lipatnya disebut <b>sumbu simetri</b>.</p><div class="box g">Segitiga sama sisi punya <b>3 sumbu simetri</b>. Tiap sumbu melalui satu titik sudut.</div></div><div class="mvis">'
+ +'<div class="fig">'+triSVG(START,{axis:"m1",w:185})+'sumbu 1</div>'
+ +'<div class="fig">'+triSVG(START,{axis:"m2",w:185})+'sumbu 2</div>'
+ +'<div class="fig">'+triSVG(START,{axis:"m3",w:185})+'sumbu 3</div></div></div>';},
+function(){return '<div class="mpage"><div class="mtxt"><h3>Simetri putar</h3><p>Bangun punya <b>simetri putar</b> jika diputar kurang dari satu putaran penuh, ia menempati bingkai yang sama.</p><div class="box g">Segitiga sama sisi bisa diputar <b>120°</b> dan <b>240°</b> terhadap titik pusatnya. Putaran 360° sama dengan tidak bergerak.</div><div class="box b">Perhatikan: bingkai tetap, tetapi <b>posisi titik A, B, C berpindah</b>.</div></div><div class="mvis">'
+ +'<div class="fig">'+triSVG(START,{w:175})+'awal</div><div class="arrow">putar<i>➜</i>120°</div>'
+ +'<div class="fig">'+triSVG(OPS.r1(START),{w:175})+'setelah 120°</div><div class="arrow">putar<i>➜</i>120°</div>'
+ +'<div class="fig">'+triSVG(OPS.r2(START),{w:175})+'total 240°</div></div></div>';},
+function(){var h='<div class="mpage"><div class="mtxt"><h3>Ada 6 gerakan simetri</h3><p>Dari susunan awal A, B, C, inilah semua hasil gerakan simetri. Garis kuning adalah sumbu pencerminan.</p><div class="box g">3 putaran (termasuk diam) + 3 pencerminan = <b>6 gerakan</b>.</div></div><div class="mvis" style="gap:10px">';
+ ORDER.forEach(function(k){var o={w:150}; if(k[0]==="m")o.axis=k; h+='<div class="fig" style="padding:6px">'+triSVG(OPS[k](START),o)+SHORT[k]+'</div>';});
+ return h+'</div></div>';},
+function(){return '<div class="mpage"><div class="mtxt"><h3>Menggabungkan gerakan</h3><p>Dua gerakan bisa dilakukan berurutan. Contoh: <b>r₁ lalu m₁</b> artinya putar 120° dulu, lalu cerminkan pada sumbu 1.</p><div class="box g">Hasilnya ternyata sama dengan <b>satu gerakan</b> saja, yaitu m₃. Ini disebut sifat <b>tertutup</b>.</div></div><div class="mvis">'
+ +'<div class="fig">'+triSVG(START,{w:165})+'awal</div><div class="arrow">r₁<i>➜</i></div>'
+ +'<div class="fig">'+triSVG(OPS.r1(START),{w:165})+'setelah r₁</div><div class="arrow">m₁<i>➜</i></div>'
+ +'<div class="fig">'+triSVG(OPS.m1(OPS.r1(START)),{w:165,axis:"m1"})+'hasil akhir</div>'
+ +'<div class="eq">r₁ lalu m₁ = m₃</div></div></div>';},
+function(){return '<div class="mpage"><div class="mtxt"><h3>Identitas dan invers</h3><p><b>Identitas (e)</b> adalah gerakan diam: tidak mengubah apa pun.</p><p><b>Invers</b> adalah gerakan yang membatalkan gerakan lain sehingga kembali ke awal.</p><div class="box b">Invers r₁ adalah r₂ (120° + 240° = 360°).<br>Invers sebuah cermin adalah cermin itu sendiri.</div></div><div class="mvis">'
+ +'<div class="fig">'+triSVG(START,{w:150})+'awal</div><div class="arrow">r₁<i>➜</i></div>'
+ +'<div class="fig">'+triSVG(OPS.r1(START),{w:150})+'</div><div class="arrow">r₂<i>➜</i></div>'
+ +'<div class="fig">'+triSVG(START,{w:150})+'kembali: e</div><div class="eq" style="font-size:26px">r₁ lalu r₂ = e &nbsp;&nbsp;|&nbsp;&nbsp; m₁ lalu m₁ = e</div></div></div>';},
+function(){return '<div class="mpage"><div class="mtxt"><h3>Apakah urutan berpengaruh?</h3><p>Bandingkan dua urutan gerakan yang sama. Hasilnya ternyata <b>berbeda</b>!</p><div class="box y">Pada segitiga sama sisi, urutan gerakan bisa mengubah hasil. Buktikan sendiri di menu <b>Eksplorasi</b>.</div><button class="btn sm" data-go="eksplor">Coba sekarang 🔮</button></div><div class="mvis">'
+ +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center"><div class="fig">'+triSVG(START,{w:130})+'awal</div><div class="arrow">r₁<i>➜</i></div><div class="fig">'+triSVG(OPS.r1(START),{w:130})+'</div><div class="arrow">m₁<i>➜</i></div><div class="fig">'+triSVG(OPS.m1(OPS.r1(START)),{w:130})+'= m₃</div></div>'
+ +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center"><div class="fig">'+triSVG(START,{w:130})+'awal</div><div class="arrow">m₁<i>➜</i></div><div class="fig">'+triSVG(OPS.m1(START),{w:130})+'</div><div class="arrow">r₁<i>➜</i></div><div class="fig">'+triSVG(OPS.r1(OPS.m1(START)),{w:130})+'= m₂</div></div>'
+ +'<div class="eq" style="font-size:26px">r₁ lalu m₁ ≠ m₁ lalu r₁</div></div></div>';},
+function(){return '<div class="mpage"><div class="mtxt"><h3>Kesimpulan: Grup simetri</h3><p>6 gerakan simetri segitiga sama sisi memenuhi empat sifat. Kumpulan yang memenuhinya disebut <b>grup</b>.</p><div class="box b">Namanya: <b>grup simetri segitiga sama sisi</b>.</div><button class="btn sm" data-go="kuis">Uji pemahaman ✍️</button></div><div class="mvis"><div class="props">'
+ +'<div class="fig"><span style="font-size:34px">🔒</span><b>Tertutup</b>Gabungan dua gerakan tetap salah satu dari 6 gerakan.</div>'
+ +'<div class="fig"><span style="font-size:34px">🟰</span><b>Identitas</b>Ada gerakan diam (e) yang tidak mengubah apa pun.</div>'
+ +'<div class="fig"><span style="font-size:34px">↩️</span><b>Invers</b>Setiap gerakan punya gerakan pembatalnya.</div>'
+ +'<div class="fig"><span style="font-size:34px">🔗</span><b>Asosiatif</b>Gabungan tiga gerakan boleh dikelompokkan bebas.</div></div></div></div>';}
+];
+var mi=0;
+function renderM(){
+  $("mBody").innerHTML=MP[mi]();
+  var d=""; for(var i=0;i<MP.length;i++) d+='<i class="'+(i===mi?"on":"")+'" data-i="'+i+'"></i>';
+  $("mDots").innerHTML=d;
+  $("mPrev").style.visibility = mi===0 ? "hidden" : "visible";
+  $("mNext").textContent = mi===MP.length-1 ? "Ke Eksplorasi 🔮" : "Berikutnya ▶";
+}
+$("mPrev").onclick=function(){if(mi>0){mi--;renderM();}};
+$("mNext").onclick=function(){if(mi<MP.length-1){mi++;renderM();}else go("eksplor");};
+$("mDots").onclick=function(e){var t=e.target.closest("i"); if(t){mi=+t.dataset.i;renderM();}};
+renderM();
+
+/* ============ EKSPLORASI ============ */
+var arr=START.slice(), hist=[], busy=false, target=null, mDone=false;
+function drawSim(){
+  var s='<svg viewBox="-130 -120 260 230" width="540" xmlns="http://www.w3.org/2000/svg">';
+  ["m1","m2","m3"].forEach(function(k,i){
+    s+=axisLine(k,118,"#d3dbf0",1.5);
+    var a=AXANG[k]*Math.PI/180;
+    s+='<text x="'+(Math.cos(a)*122)+'" y="'+(Math.sin(a)*122+(Math.sin(a)>0.2?12:(Math.sin(a)<-0.2?-4:4)))+'" text-anchor="middle" font-size="9" fill="#8a98b8" font-family="Trebuchet MS">sumbu '+(i+1)+'</text>';
+  });
+  s+='<polygon points="'+ptsStr()+'" fill="none" stroke="#b7c2e2" stroke-width="2" stroke-dasharray="5 4"/>';
+  s+='<g id="tri"><polygon points="'+ptsStr()+'" fill="rgba(109,74,255,.15)" stroke="#1e2547" stroke-width="4" stroke-linejoin="round"/>'+vertices(arr,16,18)+'<circle r="3.5" fill="#1e2547"/></g></svg>';
+  $("simBox").innerHTML=s+'<div class="legend">Garis putus-putus = bingkai awal</div>';
+}
+function updateInfo(){
+  $("hist").textContent = hist.length ? hist.map(function(k){return SHORT[k];}).join("  →  ") : "(belum ada)";
+  $("eq").textContent = NAMES[KEY2EL[keyOf(arr)]];
+  $("arrNow").innerHTML = arr.map(function(l){return '<span class="chip '+l+'">'+l+'</span>';}).join(" ");
+  renderMission();
+}
+function doMove(k){
+  if(busy) return; busy=true;
+  var g=$("tri"), t0=null, dur=650;
+  var isRot=(k==="r1"||k==="r2"), total=(k==="r1")?120:240, ang=AXANG[k];
+  function step(ts){
+    if(t0===null) t0=ts;
+    var p=Math.min((ts-t0)/dur,1);
+    if(isRot) g.setAttribute("transform","rotate("+(total*p)+")");
+    else g.setAttribute("transform","rotate("+ang+") scale(1,"+(1-2*p)+") rotate("+(-ang)+")");
+    if(p<1) requestAnimationFrame(step);
+    else{arr=OPS[k](arr); hist.push(k); drawSim(); updateInfo(); busy=false;}
+  }
+  requestAnimationFrame(step);
+}
+document.querySelectorAll("[data-mv]").forEach(function(b){b.onclick=function(){doMove(b.dataset.mv);};});
+$("btnReset").onclick=function(){if(busy)return; arr=START.slice(); hist=[]; drawSim(); updateInfo();};
+
+/* misi */
+function newMission(){
+  var pool=["r1","r2","m1","m2","m3"]; var cur=target;
+  do{ target=pool[Math.floor(Math.random()*pool.length)]; }while(target===cur && pool.length>1);
+  arr=START.slice(); hist=[]; drawSim(); updateInfo();
+}
+function renderMission(){
+  var box=$("mission"); if(!target){target="m2";}
+  var goal=OPS[target](START);
+  var done = keyOf(arr)===keyOf(goal) && hist.length>0;
+  box.classList.toggle("ok",done);
+  var chips=goal.map(function(l){return '<span class="chip '+l+'">'+l+'</span>';}).join(" ");
+  if(done) box.innerHTML='<div class="lab">Misi</div><div class="val" style="font-size:20px">🎉 Berhasil dalam '+hist.length+' gerakan! Susunan '+chips+' sama dengan gerakan '+SHORT[target]+'. Bisa dengan gerakan lebih sedikit?</div>';
+  else box.innerHTML='<div class="lab">Misi 🎯</div><div class="val" style="font-size:20px">Buat susunan '+chips+' (atas · kiri bawah · kanan bawah). Gunakan gerakan sesedikit mungkin!</div>';
+}
+$("btnNewMission").onclick=function(){if(!busy)newMission();};
+drawSim(); updateInfo();
+
+/* tabel */
+(function(){
+  var h="<tr><th></th>"; ORDER.forEach(function(c){h+="<th>"+SHORT[c]+"</th>";}); h+="</tr>";
+  ORDER.forEach(function(r){h+="<tr><th>"+SHORT[r]+"</th>"; ORDER.forEach(function(c){h+='<td>'+SHORT[compose(r,c)]+'</td>';}); h+="</tr>";});
+  $("cay").innerHTML=h;
+  $("cay").onclick=function(e){var t=e.target.closest("td"); if(t) t.classList.toggle("show");};
+  $("btnShowAll").onclick=function(){document.querySelectorAll("#cay td").forEach(function(x){x.classList.add("show");});};
+  $("btnHideAll").onclick=function(){document.querySelectorAll("#cay td").forEach(function(x){x.classList.remove("show");});};
+  $("btnTable").onclick=function(){$("modal").classList.add("on");};
+  $("btnCloseTable").onclick=function(){$("modal").classList.remove("on");};
+})();
+
+/* ============ GEOGEBRA ============ */
+function ggUrl(id){return "https://www.geogebra.org/material/iframe/id/"+id+"/width/800/height/570/border/ffffff/sfsb/true/smb/false/stb/false/stbh/false/ai/false/asb/false/sri/true/rc/false/ld/false/sdz/true/ctl/false";}
+function ggParse(t){
+  t=(t||"").trim();
+  var m=t.match(/geogebra\.org\/(?:m|material\/show\/id|material\/iframe\/id)\/([A-Za-z0-9]+)/);
+  if(m) return m[1];
+  if(/^[A-Za-z0-9]{5,}$/.test(t)) return t;
+  return null;
+}
+$("ggLoad").onclick=function(){
+  var id=ggParse($("ggLink").value), fb=$("ggFb");
+  if(!id){fb.style.color="var(--red)"; fb.textContent="Tautan/ID tidak dikenali (contoh: geogebra.org/m/abcd1234)."; return;}
+  $("ggFrame").src=ggUrl(id); ggLoaded=true;
+  fb.style.color="var(--green)"; fb.textContent="Applet dimuat. Jika kosong, pastikan applet berstatus publik.";
+};
+$("ggClassic").onclick=function(){$("ggFrame").src="https://www.geogebra.org/classic?embed"; ggLoaded=true; $("ggFb").textContent="";};
+
+/* ============ KUIS ============ */
+var QUIZ=[
+ {q:"Berapa banyak sumbu simetri (simetri lipat) pada segitiga sama sisi?",o:["1","2","3","6"],a:2,w:"Tiap sumbu melalui satu titik sudut, ada 3 titik sudut, jadi 3 sumbu."},
+ {q:"Berapa banyak gerakan simetri segitiga sama sisi seluruhnya (termasuk diam)?",o:["3","4","6","9"],a:2,w:"3 putaran (0°, 120°, 240°) + 3 pencerminan = 6 gerakan."},
+ {q:"Gerakan \"tidak melakukan apa-apa\" disebut gerakan ...",o:["Invers","Identitas","Pencerminan","Translasi"],a:1,w:"Gerakan diam disebut identitas dan dilambangkan e."},
+ {q:"Invers dari putar 120° searah jarum jam adalah ...",o:["Putar 120° lagi","Putar 240° searah jarum jam","Cermin sumbu 1","Gerakan diam"],a:1,w:"120° + 240° = 360°, kembali ke posisi awal."},
+ {q:"Dua gerakan simetri segitiga sama sisi dilakukan berurutan. Hasilnya ...",o:["Selalu salah satu dari 6 gerakan","Kadang bukan gerakan simetri","Selalu gerakan diam","Selalu pencerminan"],a:0,w:"Itu sifat tertutup. Cek di Tabel Gabungan: semua isinya salah satu dari 6 gerakan."},
+ {q:"Invers dari sebuah pencerminan adalah ...",o:["Putar 120°","Putar 240°","Pencerminan itu sendiri","Tidak ada"],a:2,w:"Dicerminkan dua kali pada sumbu yang sama membuat bangun kembali seperti semula."},
+ {q:"Tentang \"r₁ lalu m₁\" dan \"m₁ lalu r₁\", pernyataan yang benar ...",o:["Selalu sama","Hasilnya berbeda","Keduanya gerakan diam","Keduanya tidak punya hasil"],a:1,w:"Dari A, B, C: r₁ lalu m₁ memberi B, A, C (m₃), sedangkan m₁ lalu r₁ memberi C, B, A (m₂)."},
+ {q:"Hasil dari \"r₁ lalu r₂\" adalah ...",o:["r₁","r₂","m₁","e (diam)"],a:3,w:"120° + 240° = 360°, sama dengan tidak bergerak."},
+ {q:"Berapa banyak sumbu simetri pada persegi?",o:["2","4","6","8"],a:1,w:"Persegi punya 2 sumbu diagonal dan 2 sumbu tegak/mendatar, jadi 4."},
+ {q:"Persegi punya 4 putaran dan 4 pencerminan simetri. Total gerakan simetrinya ...",o:["4","6","8","16"],a:2,w:"4 putaran + 4 pencerminan = 8 gerakan simetri."}
+];
+var qi=0, score=0, answered=false, qStarted=false, ans=[];
+var resultSaved=false, curRec=null;
+function loadAll(){try{return JSON.parse(store("sim_hasil_all")||"[]");}catch(e){return [];}}
+function saveAll(a){store("sim_hasil_all",JSON.stringify(a));}
+function encRec(r){return btoa(unescape(encodeURIComponent(JSON.stringify(r))));}
+function sendSheet(r){
+  if(!SHEET_URL) return;
+  try{fetch(SHEET_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body:JSON.stringify(Object.assign({huruf:r.jawaban.map(function(j){return String.fromCharCode(65+j);})},r))});}catch(e){}
+}
+function sendForm(r){
+  if(!FORM_LINK) return;
+  try{
+    var u=new URL(FORM_LINK), base=u.origin+u.pathname.replace(/\/viewform.*$/,"/formResponse"), body=new URLSearchParams();
+    var map={NAMA:r.nama,SEKOLAH:r.sekolah,NILAI:r.nilai+" ("+r.skor+"/"+r.total+")",JAWABAN:r.jawaban.map(function(j,i){return (i+1)+huruf(j);}).join(" ")};
+    u.searchParams.forEach(function(v,k){if(k.indexOf("entry.")===0&&map[v]!==undefined)body.append(k,map[v]);});
+    fetch(base,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:body.toString()});
+  }catch(e){}
+}
+function waText(r){return "Hasil Kuis SIMETRIA\nNama: "+r.nama+"\nSekolah: "+r.sekolah+"\nNilai: "+r.nilai+" ("+r.skor+"/"+r.total+" benar)\nJawaban: "+r.jawaban.map(function(j,i){return (i+1)+huruf(j);}).join(" ");}
+function saveResult(){
+  if(resultSaved) return; resultSaved=true; sfx(score>=QUIZ.length*0.6?"win":"end");
+  curRec={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),nama:store("sim_nama")||"",sekolah:store("sim_sekolah")||"",skor:score,total:QUIZ.length,nilai:Math.round(score/QUIZ.length*100),jawaban:ans.slice(),waktu:new Date().toLocaleString("id-ID")};
+  var a=loadAll(); a.push(curRec); saveAll(a); sendSheet(curRec); sendForm(curRec);
+}
+function copyText(el){el.focus();el.select();try{if(navigator.clipboard)navigator.clipboard.writeText(el.value);else document.execCommand("copy");}catch(e){try{document.execCommand("copy");}catch(_){}}}
+function dl(name,text,mime){var b=new Blob([text],{type:mime}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){a.remove();},300);}
+function renderSend(){
+  var code=encRec(curRec);
+  $("qArea").innerHTML='<div class="card" style="padding:22px 28px"><div style="font-size:26px;font-weight:900;color:var(--navy2)">Kirim Hasil ke Guru</div>'
+   +'<div style="font-size:18px;margin:8px 0 12px">'+((SHEET_URL||FORM_LINK)?'Hasilmu <b>sudah dikirim otomatis</b> ke guru. ':'')+'Kamu juga bisa menyalin kode di bawah dan mengirimkannya ke guru (WhatsApp, dll.), atau mengunduh file hasil.</div>'
+   +'<textarea class="code" id="sendCode" readonly>'+code+'</textarea>'
+   +'<div style="display:flex;gap:12px;margin-top:12px"><button class="btn" id="sCopy">📋 Salin Kode</button><button class="btn amber" id="sWa">💬 Kirim via WhatsApp</button><button class="btn alt" id="sDl">⬇ Unduh File</button><button class="btn alt" id="sBack">◀ Kembali</button></div><div class="small" id="sMsg" style="margin-top:8px;min-height:20px"></div></div>';
+  $("sCopy").onclick=function(){copyText($("sendCode"));$("sMsg").textContent="Kode disalin. Tempel dan kirim ke gurumu.";};
+  $("sWa").onclick=function(){window.open("https://wa.me/"+(GURU_WA||"")+"?text="+encodeURIComponent(waText(curRec)),"_blank");};
+  $("sDl").onclick=function(){dl("hasil-"+(curRec.nama||"siswa").replace(/\s+/g,"_")+".txt",code,"text/plain");};
+  $("sBack").onclick=function(){renderQ();};
+}
+function renderQ(){
+  qStarted=true;
+  var area=$("qArea");
+  $("qBar").style.width=(qi/QUIZ.length*100)+"%";
+  $("qScore").textContent="Skor "+score;
+  if(qi>=QUIZ.length){
+    $("qNo").textContent="Selesai";
+    var pct=Math.round(score/QUIZ.length*100), nama=store("sim_nama")||"Kamu";
+    var msg=pct>=80?"Hebat! Kamu sudah paham grup simetri segitiga sama sisi. 🌟":pct>=60?"Bagus! Ulangi Eksplorasi untuk memantapkan pemahamanmu. 👍":"Ayo pelajari lagi Materi dan Eksplorasi, lalu coba kuis ulang. 💪";
+    saveResult();
+    var strip=QUIZ.map(function(Q,i){var ok=ans[i]===Q.a;return '<i class="'+(ok?"ok":"no")+'" data-r="'+i+'" title="Soal '+(i+1)+'">'+(ok?"✓":"✗")+'</i>';}).join("");
+    area.innerHTML='<div class="card" style="display:flex;align-items:center;gap:40px;padding:26px 40px"><div class="ring" style="background:conic-gradient(var(--violet) '+pct+'%,#e3e8f5 0)"><div>'+pct+'<small>'+score+' dari '+QUIZ.length+' benar</small></div></div>'
+      +'<div style="flex:1"><div style="font-size:32px;font-weight:900;color:var(--navy2)">Kerja bagus, '+nama+'!</div><div style="font-size:22px;margin:10px 0 14px">'+msg+'</div><div class="strip">'+strip+'</div><div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn" id="qDetail">🔍 Lihat Jawaban</button><button class="btn amber" id="qSend">📤 Kirim ke Guru</button><button class="btn alt" id="qRetry">↺ Ulangi Kuis</button><button class="btn alt" data-go="materi">📖 Baca Materi</button><button class="btn alt" data-go="menu">🏠 Menu</button></div></div></div>';
+    $("qDetail").onclick=function(){renderReview();};
+    $("qSend").onclick=function(){renderSend();};
+    area.querySelectorAll(".strip i").forEach(function(x){x.onclick=function(){renderReview(+x.dataset.r);};});
+    $("qRetry").onclick=function(){qi=0;score=0;ans=[];resultSaved=false;renderQ();};
+    return;
+  }
+  var Q=QUIZ[qi]; answered=false;
+  $("qNo").textContent="Soal "+(qi+1)+"/"+QUIZ.length;
+  var h='<div id="qQ">'+Q.q+'</div><div class="opts">';
+  Q.o.forEach(function(o,i){h+='<button class="opt" data-i="'+i+'"><span class="k">'+String.fromCharCode(65+i)+'</span><span>'+o+'</span></button>';});
+  h+='</div><div id="qFb"></div><div style="text-align:right"><button class="btn" id="qNext" style="display:none">'+(qi===QUIZ.length-1?"Lihat Skor":"Soal Berikutnya")+' ▶</button></div>';
+  area.innerHTML=h;
+  area.querySelectorAll(".opt").forEach(function(b){
+    b.onclick=function(){
+      if(answered)return; answered=true;
+      var i=+b.dataset.i, ok=(i===Q.a); ans[qi]=i; if(ok)score++; sfx(ok?"ok":"no");
+      area.querySelectorAll(".opt").forEach(function(x,j){x.disabled=true; if(j===Q.a)x.classList.add("right"); else if(j===i)x.classList.add("wrong");});
+      var fb=$("qFb"); fb.style.color=ok?"#15803d":"#b91c1c";
+      fb.innerHTML=(ok?"<b>Benar! 🎉</b> ":"<b>Belum tepat.</b> ")+'<span style="color:var(--ink)">'+Q.w+'</span>';
+      $("qScore").textContent="Skor "+score;
+      $("qNext").style.display="inline-flex";
+    };
+  });
+  $("qNext").onclick=function(){qi++;renderQ();};
+}
+
+function renderReview(focus){
+  var area=$("qArea"), nama=store("sim_nama")||"-", sek=store("sim_sekolah")||"-";
+  var salah=QUIZ.length-score, pct=Math.round(score/QUIZ.length*100);
+  var h='<div class="card" style="padding:16px 22px"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">'
+    +'<div style="flex:1;min-width:0"><div style="font-size:26px;font-weight:900;color:var(--navy2)">Rincian Jawaban</div><div class="small">'+nama+' • '+sek+'</div></div>'
+    +'<div class="stat g"><b>'+score+'</b>Benar</div><div class="stat r"><b>'+salah+'</b>Salah</div><div class="stat v"><b>'+pct+'</b>Nilai</div>'
+    +'<button class="btn alt sm" id="qBack">◀ Kembali</button></div><div class="rv" id="rv">';
+  QUIZ.forEach(function(Q,i){
+    var ok=ans[i]===Q.a, L=function(j){return String.fromCharCode(65+j)+". "+Q.o[j];};
+    h+='<div class="rvr '+(ok?"ok":"no")+'" id="rv'+i+'"><div class="n">'+(i+1)+'</div><div><div class="q">'+Q.q+'</div>'
+      +'<div class="a">Jawaban siswa: <b style="color:'+(ok?"#15803d":"#b91c1c")+'">'+L(ans[i])+'</b> '+(ok?"✓ Benar":"✗ Salah")+'</div>'
+      +(ok?"":'<div class="a">Jawaban yang benar: <b style="color:#15803d">'+L(Q.a)+'</b></div>')
+      +'<div class="w">'+Q.w+'</div></div></div>';
+  });
+  area.innerHTML=h+'</div></div>';
+  $("qBack").onclick=function(){renderQ();};
+  if(focus!==undefined){var el=$("rv"+focus); if(el)$("rv").scrollTop=el.offsetTop-$("rv").offsetTop;}
+}
+
+/* ============ PANEL GURU ============ */
+function huruf(j){return j===undefined||j===null?"-":String.fromCharCode(65+j);}
+$("btnGuruCover").onclick=function(){go("guru");gLogin();};
+function gLogin(msg){
+  $("gArea").innerHTML='<div class="card" style="width:520px;margin:70px auto;text-align:center;padding:34px"><div style="font-size:54px">👩‍🏫</div><div style="font-size:28px;font-weight:900;color:var(--navy2);margin:6px 0 14px">Panel Guru</div>'
+   +'<input type="password" id="gPin" placeholder="PIN guru"><div class="err" id="gErr" style="color:var(--red);min-height:22px;margin:8px 0">'+(msg||"")+'</div>'
+   +'<div style="display:flex;gap:10px;justify-content:center"><button class="btn" id="gOk">Masuk</button><button class="btn alt" id="gCancel">Batal</button></div></div>';
+  var f=function(){if($("gPin").value===GURU_PIN){renderGuru();if(SHEET_URL&&$("gSync"))$("gSync").click();}else gLogin("PIN salah.");};
+  $("gOk").onclick=f; $("gPin").onkeydown=function(e){if(e.key==="Enter")f();}; $("gCancel").onclick=function(){go("cover");}; $("gPin").focus();
+}
+var gView="data", gBest=false, gQ="";
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function csvRekap(d,acc){
+  var q=function(v){return '"'+String(v).replace(/"/g,'""')+'"';}, n=d.length;
+  var nil=d.map(function(r){return r.nilai;}), sum=nil.reduce(function(a,b){return a+b;},0);
+  var rows=[["REKAP KUIS SIMETRIA"],["Jumlah siswa",n],["Rata-rata",n?Math.round(sum/n*10)/10:0],["Tertinggi",n?Math.max.apply(null,nil):0],["Terendah",n?Math.min.apply(null,nil):0],["KKM",KKM],["Tuntas",d.filter(function(r){return r.nilai>=KKM;}).length],["Belum tuntas",d.filter(function(r){return r.nilai<KKM;}).length],[],["Soal","Kunci","% benar"]];
+  QUIZ.forEach(function(Q,i){rows.push(["S"+(i+1),huruf(Q.a),acc[i]+"%"]);});
+  rows.push([],["No","Nama","Sekolah","Nilai","Status"]);
+  d.slice().sort(function(a,b){return b.nilai-a.nilai;}).forEach(function(r,k){rows.push([k+1,r.nama,r.sekolah,r.nilai,r.nilai>=KKM?"Tuntas":"Belum tuntas"]);});
+  dl("rekap-kuis-simetria.csv","\ufeff"+rows.map(function(r){return r.map(q).join(",");}).join("\n"),"text/csv");
+}
+function rekapHTML(d,acc){
+  var n=d.length, nil=d.map(function(r){return r.nilai;}), sum=nil.reduce(function(a,b){return a+b;},0);
+  var avg=Math.round(sum/n*10)/10, mx=Math.max.apply(null,nil), mn=Math.min.apply(null,nil);
+  var tun=d.filter(function(r){return r.nilai>=KKM;}).length, rem=d.filter(function(r){return r.nilai<KKM;});
+  var bands=[["< 60",0,59],["60–69",60,69],["70–79",70,79],["80–89",80,89],["90–100",90,100]];
+  var sorted=d.slice().sort(function(a,b){return b.nilai-a.nilai;});
+  var h='<div style="display:flex;gap:22px;max-height:420px;overflow:auto"><div style="flex:1.15;min-width:0"><div style="font-weight:800;color:var(--navy2);font-size:18px;margin-bottom:4px">Analisis butir soal</div>';
+  QUIZ.forEach(function(Q,i){
+    var cnt=[0,0,0,0]; d.forEach(function(r){if(r.jawaban[i]!==undefined)cnt[r.jawaban[i]]++;});
+    var best=-1,bc=0; cnt.forEach(function(c,j){if(j!==Q.a&&c>bc){bc=c;best=j;}});
+    var cat=acc[i]>=80?["Mudah","g"]:acc[i]>=40?["Sedang","y"]:["Sulit","r"];
+    h+='<div class="ar"><b>S'+(i+1)+'</b><div class="bar '+cat[1]+'"><div style="width:'+acc[i]+'%"></div></div><b>'+acc[i]+'%</b><span style="color:var(--muted)">'+cat[0]+'</span><span class="small">'+(best>=0?'pengecoh '+huruf(best)+' ('+bc+')':'semua benar')+'</span></div>';
+  });
+  h+='</div><div style="flex:1;min-width:0"><div style="display:flex;gap:8px;margin-bottom:10px"><div class="stat v" style="flex:1"><b>'+avg+'</b>Rata-rata</div><div class="stat g" style="flex:1"><b>'+mx+'</b>Tertinggi</div><div class="stat r" style="flex:1"><b>'+mn+'</b>Terendah</div></div>'
+   +'<div style="font-size:17px;margin-bottom:8px"><b>Ketuntasan (KKM '+KKM+'):</b> '+tun+' tuntas ('+Math.round(tun/n*100)+'%), '+rem.length+' belum tuntas</div>'
+   +'<div style="font-weight:800;color:var(--navy2);margin-bottom:2px">Sebaran nilai</div>';
+  bands.forEach(function(b){var c=nil.filter(function(v){return v>=b[1]&&v<=b[2];}).length;h+='<div class="rk"><span>'+b[0]+'</span><div class="bar"><div style="width:'+Math.round(c/n*100)+'%"></div></div><span class="b">'+c+'</span></div>';});
+  var sk={}; d.forEach(function(r){var k=r.sekolah||"-"; (sk[k]=sk[k]||[]).push(r.nilai);});
+  var skk=Object.keys(sk);
+  if(skk.length>1){h+='<div style="font-weight:800;color:var(--navy2);margin:10px 0 2px">Rata-rata per sekolah</div>';skk.forEach(function(k){var a=sk[k];h+='<div class="rk" style="grid-template-columns:1fr 60px 50px"><span>'+esc(k)+'</span><span class="small">'+a.length+' siswa</span><span class="b">'+Math.round(a.reduce(function(x,y){return x+y;},0)/a.length)+'</span></div>';});}
+  h+='<div style="font-weight:800;color:var(--navy2);margin:10px 0 2px">Peringkat 3 teratas</div>';
+  sorted.slice(0,3).forEach(function(r,k){h+='<div class="rk"><span>#'+(k+1)+'</span><span>'+esc(r.nama)+'</span><span class="b">'+r.nilai+'</span></div>';});
+  h+='<div style="font-weight:800;color:var(--navy2);margin:10px 0 2px">Perlu remedial</div><div style="font-size:15px;line-height:1.4">'+(rem.length?rem.map(function(r){return esc(r.nama)+' ('+r.nilai+')';}).join(", "):"Semua siswa tuntas 🎉")+'</div>'
+   +'<div style="margin-top:12px"><button class="btn sm" id="gCsvR">⬇ Unduh Rekap (CSV)</button></div></div></div>';
+  return h;
+}
+function gDetail(id){
+  var r=loadAll().filter(function(x){return x.id===id;})[0]; if(!r){renderGuru();return;}
+  var ok=r.nilai>=KKM, h='<div class="card" style="padding:16px 22px"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><div style="flex:1;min-width:0"><div style="font-size:26px;font-weight:900;color:var(--navy2)">'+esc(r.nama)+'</div><div class="small">'+esc(r.sekolah)+' • '+esc(r.waktu)+'</div></div>'
+   +'<div class="stat g"><b>'+r.skor+'</b>Benar</div><div class="stat r"><b>'+(r.total-r.skor)+'</b>Salah</div><div class="stat v"><b>'+r.nilai+'</b>'+(ok?"Tuntas":"Remedial")+'</div><button class="btn alt sm" id="gBack">◀ Kembali</button></div><div class="rv" id="rv">';
+  QUIZ.forEach(function(Q,i){
+    var good=r.jawaban[i]===Q.a, L=function(j){return j===undefined||j===null?"(kosong)":String.fromCharCode(65+j)+". "+Q.o[j];};
+    h+='<div class="rvr '+(good?"ok":"no")+'"><div class="n">'+(i+1)+'</div><div><div class="q">'+Q.q+'</div><div class="a">Jawaban siswa: <b style="color:'+(good?"#15803d":"#b91c1c")+'">'+L(r.jawaban[i])+'</b> '+(good?"✓":"✗")+'</div>'+(good?"":'<div class="a">Kunci: <b style="color:#15803d">'+L(Q.a)+'</b></div>')+'</div></div>';
+  });
+  $("gArea").innerHTML=h+'</div></div>';
+  $("gBack").onclick=function(){renderGuru();};
+}
+var GAS_CODE='function doPost(e){\n  var s=SpreadsheetApp.getActiveSheet();\n  var r=JSON.parse(e.postData.contents);\n  if(s.getLastRow()===0) s.appendRow(["Waktu","ID","Nama","Sekolah","Skor","Total","Nilai","Jawaban","JSON"]);\n  var ids=s.getLastRow()>1?s.getRange(2,2,s.getLastRow()-1,1).getValues().map(function(x){return x[0];}):[];\n  if(ids.indexOf(r.id)<0) s.appendRow([r.waktu,r.id,r.nama,r.sekolah,r.skor,r.total,r.nilai,(r.huruf||[]).join(" "),JSON.stringify(r)]);\n  return ContentService.createTextOutput("ok");\n}\nfunction doGet(){\n  var s=SpreadsheetApp.getActiveSheet(), n=s.getLastRow(), out=[];\n  if(n>1) s.getRange(2,9,n-1,1).getValues().forEach(function(v){try{out.push(JSON.parse(v[0]));}catch(e){}});\n  return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);\n}';
+function setupHTML(){
+  return '<div style="display:flex;gap:22px;max-height:430px;overflow:auto"><div style="flex:1;min-width:0;font-size:16px;line-height:1.5">'
+   +'<div style="font-size:20px;font-weight:800;color:var(--navy2);margin-bottom:6px">Supaya semua nilai siswa masuk otomatis</div>'
+   +'<div class="small" style="margin-bottom:8px">Tanpa langkah ini, hasil hanya tersimpan di perangkat siswa dan dikirim lewat WhatsApp/kode. Dengan langkah ini, nilai dari semua HP/laptop siswa terkumpul di satu Google Sheets.</div>'
+   +'<ol style="padding-left:20px"><li>Buat Google Sheets baru → menu <b>Ekstensi → Apps Script</b>.</li><li>Hapus isi editor, tempel kode di samping, klik <b>Simpan</b>.</li><li><b>Terapkan → Deployment baru → Aplikasi web</b>. Akses: <b>Siapa saja</b>. Klik Terapkan dan izinkan.</li><li>Salin <b>URL Aplikasi Web</b> (berakhiran /exec).</li><li>Buka file ini dengan editor teks, isi <code>var SHEET_URL = "URL tadi";</code> di bagian PENGATURAN GURU, simpan, lalu bagikan filenya ke siswa.</li><li>Di Panel Guru, tombol <b>🔄 Sheets</b> menarik semua hasil (otomatis saat Anda masuk).</li></ol>'
+   +'<div class="small" style="margin-top:8px">Ganti juga <code>KKM</code> dan <code>GURU_PIN</code> (sekarang '+esc(GURU_PIN)+') di bagian yang sama. Status: SHEET_URL '+(SHEET_URL?'<b style="color:#15803d">sudah diisi ✓</b>':'<b style="color:#b91c1c">belum diisi</b>')+'.</div></div>'
+   +'<div style="flex:1;min-width:0"><textarea class="code" id="gScript" readonly style="height:300px">'+esc(GAS_CODE)+'</textarea><div style="margin-top:8px"><button class="btn sm" id="gCopyScript">📋 Salin Kode Apps Script</button></div></div></div>';
+}
+function renderGuru(msg){
+  var all=loadAll(); all.forEach(function(r,i){r._i=i;});
+  var d=all.slice();
+  if(gBest){var bm={}; all.forEach(function(r){var k=(r.nama+"|"+r.sekolah).toLowerCase().trim(); if(!bm[k]||r.nilai>=bm[k].nilai)bm[k]=r;}); d=Object.keys(bm).map(function(k){return bm[k];}).sort(function(a,b){return a._i-b._i;});}
+  var qq=gQ.toLowerCase().trim(), dv=qq?d.filter(function(r){return (r.nama+" "+r.sekolah).toLowerCase().indexOf(qq)>=0;}):d;
+  var n=d.length, avg=n?Math.round(d.reduce(function(a,r){return a+r.nilai;},0)/n):0;
+  var acc=QUIZ.map(function(Q,i){var c=d.filter(function(r){return r.jawaban[i]===Q.a;}).length;return n?Math.round(c/n*100):0;});
+  var h='<div class="card" style="padding:16px 22px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">'
+   +'<div style="font-size:26px;font-weight:900;color:var(--navy2);margin-right:auto">Hasil Kuis Siswa <span style="font-size:16px;color:var(--muted);font-weight:600">('+n+' siswa)</span></div>'
+   +'<button class="btn sm'+(gView==="data"?"":" alt")+'" id="gTabD">📋 Data</button><button class="btn sm'+(gView==="rekap"?"":" alt")+'" id="gTabR">📊 Rekap</button><button class="btn sm'+(gView==="setup"?"":" alt")+'" id="gTabS">⚙ Setup</button>'
+   +'<button class="btn amber sm" id="gSync">🔄 Sheets</button><button class="btn sm" id="gCsv">⬇ CSV</button><button class="btn alt sm" id="gImp">📥 Impor</button><button class="btn alt sm" id="gDel">🗑 Hapus</button><button class="btn alt sm" id="gOut">Keluar</button></div>'
+   +'<div id="gImpBox" style="display:none;margin-bottom:10px"><textarea class="code" id="gTa" placeholder="Tempel di sini: pesan WhatsApp hasil siswa (boleh banyak sekaligus) atau kode hasil"></textarea><div style="display:flex;gap:10px;margin-top:8px;align-items:center"><button class="btn sm" id="gAdd">Tambahkan</button><button class="btn alt sm" id="gFile">Pilih file...</button><input type="file" id="gFi" accept=".txt,.json" multiple style="display:none"></div></div>'
+   +'<div style="display:flex;gap:16px;align-items:center;margin-bottom:6px;flex-wrap:wrap"><label style="font-size:15px;cursor:pointer"><input type="checkbox" id="gBest"'+(gBest?" checked":"")+'> Hanya nilai terbaik tiap siswa</label>'+(gView==="data"?'<input id="gSearch" placeholder="Cari nama / sekolah lalu Enter..." value="'+esc(gQ)+'" style="padding:7px 12px;border:2px solid var(--line);border-radius:10px;font-size:15px;font-family:inherit;width:270px">':'')+'</div>'
+   +'<div class="small" id="gMsg" style="min-height:18px;margin-bottom:6px">'+(msg||"")+'</div>';
+  if(gView==="setup") h+=setupHTML();
+  else if(!n) h+='<div style="padding:50px;text-align:center;font-size:20px;color:var(--muted)">Belum ada data. Hasil siswa di perangkat ini muncul otomatis; hasil dari perangkat lain bisa diimpor lewat kode/file.</div>';
+  else if(gView==="rekap"){h+=rekapHTML(d,acc);}
+  else{
+    h+='<div class="gw"><table class="gt"><tr><th>No</th><th class="l">Nama</th><th class="l">Sekolah</th><th>Nilai</th><th>Status</th><th>Benar</th><th>Waktu</th>';
+    QUIZ.forEach(function(_,i){h+='<th>S'+(i+1)+'</th>';});
+    h+='<th></th></tr><tr class="sub"><th colspan="7" class="l">% siswa menjawab benar</th>';
+    acc.forEach(function(a){h+='<th>'+a+'%</th>';});
+    h+='<th></th></tr>';
+    dv.forEach(function(r,k){
+      h+='<tr><td>'+(k+1)+'</td><td class="l"><b class="gn" data-k="'+esc(r.id)+'" title="Lihat detail jawaban" style="cursor:pointer;text-decoration:underline dotted">'+esc(r.nama)+'</b></td><td class="l">'+esc(r.sekolah)+'</td><td><b>'+r.nilai+'</b></td><td><span class="badge '+(r.nilai>=KKM?'t">Tuntas':'r">Remedial')+'</span></td><td>'+r.skor+'/'+r.total+'</td><td>'+r.waktu+'</td>';
+      QUIZ.forEach(function(Q,i){var ok=r.jawaban[i]===Q.a;h+='<td class="'+(ok?"ok":"no")+'">'+huruf(r.jawaban[i])+'</td>';});
+      h+='<td><button class="gx" data-d="'+r._i+'" title="Hapus">✕</button></td></tr>';
+    });
+    h+='</table></div><div class="small" style="margin-top:6px">Kunci: '+QUIZ.map(function(Q,i){return (i+1)+"="+huruf(Q.a);}).join(" · ")+'. Hijau = benar, merah = salah (huruf = pilihan siswa).</div>';
+  }
+  $("gArea").innerHTML=h+'</div>';
+  $("gOut").onclick=function(){go("cover");};
+  $("gTabD").onclick=function(){gView="data";renderGuru();};
+  $("gTabR").onclick=function(){gView="rekap";renderGuru();};
+  $("gTabS").onclick=function(){gView="setup";renderGuru();};
+  $("gBest").onchange=function(){gBest=this.checked;renderGuru();};
+  if($("gSearch"))$("gSearch").onchange=function(){gQ=this.value;renderGuru();};
+  $("gArea").querySelectorAll(".gn").forEach(function(b){b.onclick=function(){gDetail(b.dataset.k);};});
+  if($("gCopyScript"))$("gCopyScript").onclick=function(){copyText($("gScript"));$("gMsg").textContent="Kode disalin. Tempel ke Google Apps Script.";};
+  if($("gCsvR")) $("gCsvR").onclick=function(){csvRekap(d,acc);};
+  $("gImp").onclick=function(){var b=$("gImpBox");b.style.display=b.style.display==="none"?"block":"none";};
+  $("gFile").onclick=function(){$("gFi").click();};
+  function imp(text){
+    var a=loadAll(), ids={}, added=0, bad=0; a.forEach(function(r){ids[r.id]=1;});
+    text=String(text).replace(/Nama:\s*(.+)\r?\n\s*Sekolah:\s*(.+)\r?\n\s*Nilai:\s*(\d+)\s*\((\d+)\/(\d+)[^\n]*\n\s*Jawaban:\s*([^\n]+)/gi,function(m,nm,sk,nl,sc,tt,jw){
+      var jaw=[]; jw.replace(/(\d+)\s*([A-Da-d])/g,function(_,no,l){jaw[+no-1]=l.toUpperCase().charCodeAt(0)-65;});
+      var id="wa-"+nm.trim()+"|"+sk.trim()+"|"+jw.trim();
+      if(!ids[id]){a.push({id:id,nama:nm.trim(),sekolah:sk.trim(),skor:+sc,total:+tt,nilai:+nl,jawaban:jaw,waktu:"via WhatsApp"});ids[id]=1;added++;}
+      return " ";
+    });
+    text.split(/\s+/).filter(function(t){return t.length>=40;}).forEach(function(t){
+      try{var r=JSON.parse(decodeURIComponent(escape(atob(t))));if(!r||!r.id||!r.jawaban)throw 0;if(!ids[r.id]){a.push(r);ids[r.id]=1;added++;}}catch(e){bad++;}
+    });
+    saveAll(a); renderGuru(added+" hasil ditambahkan"+(bad?", "+bad+" kode tidak valid":"")+".");
+  }
+  $("gAdd").onclick=function(){imp($("gTa").value);};
+  $("gSync").onclick=function(){
+    if(!SHEET_URL){$("gMsg").style.color="var(--red)";$("gMsg").textContent="SHEET_URL belum diisi di bagian PENGATURAN GURU pada file.";return;}
+    $("gMsg").style.color="";$("gMsg").textContent="Mengambil data...";
+    fetch(SHEET_URL).then(function(r){return r.json();}).then(function(list){
+      var a=loadAll(), ids={}, added=0; a.forEach(function(r){ids[r.id]=1;});
+      list.forEach(function(r){if(r&&r.id&&r.jawaban&&!ids[r.id]){a.push(r);ids[r.id]=1;added++;}});
+      saveAll(a); renderGuru("Sinkron selesai: "+added+" hasil baru dari Google Sheets.");
+    }).catch(function(){$("gMsg").style.color="var(--red)";$("gMsg").textContent="Gagal mengambil data. Cek URL Web App dan pengaturan akses (Anyone).";});
+  };
+  $("gFi").onchange=function(){var fs=[].slice.call(this.files),t="",c=0;fs.forEach(function(f){var rd=new FileReader();rd.onload=function(){t+=rd.result+"\n";if(++c===fs.length)imp(t);};rd.readAsText(f);});};
+  $("gCsv").onclick=function(){
+    var q=function(v){return '"'+String(v).replace(/"/g,'""')+'"';};
+    var rows=[["No","Nama","Sekolah","Skor","Nilai","Waktu"].concat(QUIZ.map(function(_,i){return "S"+(i+1);}))];
+    rows.push(["","Kunci","","","",""].concat(QUIZ.map(function(Q){return huruf(Q.a);})));
+    d.forEach(function(r,k){rows.push([k+1,r.nama,r.sekolah,r.skor+"/"+r.total,r.nilai,r.waktu].concat(QUIZ.map(function(_,i){return huruf(r.jawaban[i]);})));});
+    dl("hasil-kuis-simetria.csv","\ufeff"+rows.map(function(r){return r.map(q).join(",");}).join("\n"),"text/csv");
+  };
+  $("gDel").onclick=function(){if(confirm("Hapus semua data hasil di perangkat ini?")){saveAll([]);renderGuru("Data dihapus.");}};
+  $("gArea").querySelectorAll(".gx").forEach(function(b){b.onclick=function(){var a=loadAll();a.splice(+b.dataset.d,1);saveAll(a);renderGuru();};});
+}
+</script>
+</body>
+</html>
